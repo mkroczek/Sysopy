@@ -1,0 +1,7 @@
+*.txt
+*.o
+*.so
+*.a
+shared_libtest
+static_libtest
+libtest
