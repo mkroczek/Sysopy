@@ -46,34 +46,31 @@ struct files_pair* decode_files_pair(char* input){
     return pair;
 }
 
-void write_stats(FILE* file, struct operation* operations){
-    fputs("MERGE\n", file);
-    fputs("REAL      USER      SYSTEM\n", file);
-    fprintf(file,"%lf     %lf    %lf\n\n",operations[0].real_time, operations[0].user_time, operations[0].sys_time);
-    fputs("ADD\n", file);
-    fputs("REAL      USER      SYSTEM\n", file);
-    fprintf(file,"%lf     %lf    %lf\n\n",operations[1].real_time, operations[1].user_time, operations[1].sys_time);
-    fputs("DELETE\n", file);
-    fputs("REAL      USER      SYSTEM\n", file);
-    fprintf(file,"%lf     %lf    %lf\n\n",operations[2].real_time, operations[2].user_time, operations[2].sys_time);
-    fputs("DELETE AND ADD\n", file);
-    fputs("REAL      USER      SYSTEM\n", file);
-    fprintf(file,"%lf     %lf    %lf\n\n",operations[3].real_time, operations[3].user_time, operations[3].sys_time);
+void write_stats(struct operation* operations){
+    printf("MERGE\n");
+    printf("REAL         USER        SYSTEM\n");
+    printf("%lf     %lf    %lf\n\n",operations[0].real_time, operations[0].user_time, operations[0].sys_time);
+    printf("ADD\n");
+    printf("REAL         USER        SYSTEM\n");
+    printf("%lf     %lf    %lf\n\n",operations[1].real_time, operations[1].user_time, operations[1].sys_time);
+    printf("DELETE\n");
+    printf("REAL         USER        SYSTEM\n");
+    printf("%lf     %lf    %lf\n\n",operations[2].real_time, operations[2].user_time, operations[2].sys_time);
+    printf("DELETE AND ADD\n");
+    printf("REAL         USER        SYSTEM\n");
+    printf("%lf     %lf    %lf\n\n",operations[3].real_time, operations[3].user_time, operations[3].sys_time);
 }
 
-void pass_test(struct test* test, char* result_filename){
-    
+void pass_test(struct test* test){
     struct main_table* table;
-    FILE* file = fopen(result_filename, "a");
-    if(file == NULL) perror("Problem with result file");
-    fprintf(file, "\n--------------TEST %d--------------\n", test->id);
-    fprintf(file, "-----------files length: %s-----------\n", test->files_length);
+    printf("--------------TEST %d--------------\n", test->id);
+    printf("-------files length: %s--------\n", test->files_length);
 
     for(int i = 0; i < test->number_of_cases; i+=1){
         struct tms usr_sys_times[8]; //to store user and system times
         clock_t real_times[8]; //to store real times
         struct operation operations[4];
-        fprintf(file, "-----------number of blocks: %d-----------\n", test->numbers_of_blocks[i]);
+        printf("-------number of blocks: %d-------\n", test->numbers_of_blocks[i]);
         free_main_table(table); //for security
         table = create_table(test->numbers_of_blocks[i]);
         struct file_info** merged_files = (struct file_info**) calloc(test->numbers_of_blocks[i], sizeof(struct file_info*)); 
@@ -122,21 +119,17 @@ void pass_test(struct test* test, char* result_filename){
             operations[j].user_time = (double)(usr_sys_times[2*j+1].tms_utime-usr_sys_times[2*j].tms_utime)/sysconf(_SC_CLK_TCK);
             operations[j].sys_time = (double)(usr_sys_times[2*j+1].tms_stime-usr_sys_times[2*j].tms_stime)/sysconf(_SC_CLK_TCK);
         }
-        write_stats(file, operations);
+        write_stats(operations);
 
-        //free(operations);
         for(int j = 0; j<test->numbers_of_blocks[i]; j+=1){
             fclose(merged_files[j]->file);
             free(merged_files[j]);
         }
         free(merged_files);
-        //free(usr_sys_times);
-        //free(real_times);
         free_main_table(table);
         table = NULL;
 
     }
-    fclose(file);
 }
 
 struct test* create_test(int id, char* length, int number_of_cases, int* numbers_of_blocks, struct sequence* seq){
@@ -233,12 +226,12 @@ int main(int argc, char** argv){
     int cases[] = {10, 500, 1000};
 
     struct test* test_short = create_test(1,"short", 3, cases, short_seq);
-    struct test* test_medium = create_test(1,"medium", 3, cases, medium_seq);
-    struct test* test_long = create_test(1,"long", 3, cases, long_seq);
+    struct test* test_medium = create_test(2,"medium", 3, cases, medium_seq);
+    struct test* test_long = create_test(3,"long", 3, cases, long_seq);
 
-    pass_test(test_short, "raport2.txt");
-    pass_test(test_medium, "raport2.txt");
-    pass_test(test_long, "raport2.txt");
+    pass_test(test_short);
+    pass_test(test_medium);
+    pass_test(test_long);
 
     return 0;
 }

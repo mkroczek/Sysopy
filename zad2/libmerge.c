@@ -79,8 +79,6 @@ struct block* create_block(struct file_info* merged){
     
     free(line);
     tmp_file_ptr = NULL;
-    //fclose(tmp_file_ptr);
-    //free(merged);
     return blk;
 }
 
