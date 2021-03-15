@@ -156,12 +156,58 @@ struct sequence* create_seq(int length, struct files_pair** pairs){
     return seq;
 }
 
+void test_library(){
+    struct files_pair** short_pairs = (struct files_pair**) calloc(3, sizeof(struct files_pair*));
+    struct files_pair** medium_pairs = (struct files_pair**) calloc(3, sizeof(struct files_pair*));
+    struct files_pair** long_pairs = (struct files_pair**) calloc(3, sizeof(struct files_pair*));
+
+    short_pairs[0] = create_pair("AS.txt", "BS.txt");
+    short_pairs[1] = create_pair("AS.txt", "CS.txt");
+    short_pairs[2] = create_pair("CS.txt", "BS.txt");
+
+    medium_pairs[0] = create_pair("AM.txt", "BM.txt");
+    medium_pairs[1] = create_pair("AM.txt", "CM.txt");
+    medium_pairs[2] = create_pair("CM.txt", "BM.txt");
+
+    long_pairs[0] = create_pair("AL.txt", "BL.txt");
+    long_pairs[1] = create_pair("AL.txt", "CL.txt");
+    long_pairs[2] = create_pair("CL.txt", "BL.txt");
+
+    struct sequence* short_seq = create_seq(3,short_pairs);
+    struct sequence* medium_seq = create_seq(3,medium_pairs);
+    struct sequence* long_seq = create_seq(3,long_pairs);
+
+    int* cases = (int*) calloc(3, sizeof(int));
+    cases[0] = 10;
+    cases[1] = 500;
+    cases[2] = 1000;
+
+    struct test* test_short = create_test(1,"short", 3, cases, short_seq);
+    struct test* test_medium = create_test(2,"medium", 3, cases, medium_seq);
+    struct test* test_long = create_test(3,"long", 3, cases, long_seq);
+
+    pass_test(test_short);
+    pass_test(test_medium);
+    pass_test(test_long);
+
+    for(int i = 0; i < 3; i+=1){
+        free(short_pairs[i]);
+        free(medium_pairs[i]);
+        free(long_pairs[i]);
+    }
+    free(cases);
+}
+
 int main(int argc, char** argv){
     struct main_table* table;
     struct sequence* seq = NULL;
 
     //testing from terminal
     for(int i = 1; i < argc; i+=1){
+
+        if (strcmp(argv[i], "test") == 0){
+            test_library();
+        }
 
         if (strcmp(argv[i], "create_table") == 0){
             i += 1;
@@ -202,36 +248,6 @@ int main(int argc, char** argv){
         }
         
     }
-
-    struct files_pair** short_pairs = (struct files_pair**) calloc(3, sizeof(struct files_pair*));
-    struct files_pair** medium_pairs = (struct files_pair**) calloc(3, sizeof(struct files_pair*));
-    struct files_pair** long_pairs = (struct files_pair**) calloc(3, sizeof(struct files_pair*));
-
-    short_pairs[0] = create_pair("AS.txt", "BS.txt");
-    short_pairs[1] = create_pair("AS.txt", "CS.txt");
-    short_pairs[2] = create_pair("CS.txt", "BS.txt");
-
-    medium_pairs[0] = create_pair("AM.txt", "BM.txt");
-    medium_pairs[1] = create_pair("AM.txt", "CM.txt");
-    medium_pairs[2] = create_pair("CM.txt", "BM.txt");
-
-    long_pairs[0] = create_pair("AL.txt", "BL.txt");
-    long_pairs[1] = create_pair("AL.txt", "CL.txt");
-    long_pairs[2] = create_pair("CL.txt", "BL.txt");
-
-    struct sequence* short_seq = create_seq(3,short_pairs);
-    struct sequence* medium_seq = create_seq(3,medium_pairs);
-    struct sequence* long_seq = create_seq(3,long_pairs);
-
-    int cases[] = {10, 500, 1000};
-
-    struct test* test_short = create_test(1,"short", 3, cases, short_seq);
-    struct test* test_medium = create_test(2,"medium", 3, cases, medium_seq);
-    struct test* test_long = create_test(3,"long", 3, cases, long_seq);
-
-    pass_test(test_short);
-    pass_test(test_medium);
-    pass_test(test_long);
 
     return 0;
 }

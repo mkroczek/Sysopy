@@ -1,8 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g
-BINS = libstaticmerge.a static_libtest
 
-all: $(BINS)
+all: static_libtest
 
 libmerge.o: libmerge.c libmerge.h
 	$(CC) $(CFLAGS) -c libmerge.c
@@ -10,10 +9,13 @@ libmerge.o: libmerge.c libmerge.h
 libstaticmerge.a: libmerge.o
 	ar rcs libstaticmerge.a libmerge.o
 
-static_libtest: libtest.c 
+console: libtest.c libstaticmerge.a
 	$(CC) $(CFLAGS) -o $@ $^ -L . -lstaticmerge
-	./static_libtest > raport2.txt
+
+static_libtest: libtest.c libstaticmerge.a
+	$(CC) $(CFLAGS) -o $@ $^ -L . -lstaticmerge
+	./static_libtest test > raport2.txt
 	make clean
 
 clean:
-	rm *.o $(BINS)
+	rm *.o *.a static_libtest console

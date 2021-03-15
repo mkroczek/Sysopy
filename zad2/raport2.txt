@@ -1,0 +1,159 @@
+--------------TEST 1--------------
+-------files length: short--------
+-------number of blocks: 10-------
+MERGE
+REAL         USER        SYSTEM
+0.000570     0.000000    0.000000
+
+ADD
+REAL         USER        SYSTEM
+0.000031     0.000000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.000004     0.000000    0.000000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000154     0.000000    0.000000
+
+-------number of blocks: 500-------
+MERGE
+REAL         USER        SYSTEM
+0.018657     0.000000    0.010000
+
+ADD
+REAL         USER        SYSTEM
+0.001905     0.000000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.000080     0.000000    0.000000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000185     0.000000    0.000000
+
+-------number of blocks: 1000-------
+MERGE
+REAL         USER        SYSTEM
+0.037085     0.010000    0.030000
+
+ADD
+REAL         USER        SYSTEM
+0.004457     0.000000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.000180     0.000000    0.010000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000172     0.000000    0.000000
+
+--------------TEST 2--------------
+-------files length: medium--------
+-------number of blocks: 10-------
+MERGE
+REAL         USER        SYSTEM
+0.000776     0.000000    0.000000
+
+ADD
+REAL         USER        SYSTEM
+0.000034     0.000000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.000004     0.000000    0.000000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000172     0.000000    0.000000
+
+-------number of blocks: 500-------
+MERGE
+REAL         USER        SYSTEM
+0.015875     0.010000    0.010000
+
+ADD
+REAL         USER        SYSTEM
+0.002374     0.000000    0.010000
+
+DELETE
+REAL         USER        SYSTEM
+0.000188     0.000000    0.000000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000263     0.000000    0.000000
+
+-------number of blocks: 1000-------
+MERGE
+REAL         USER        SYSTEM
+0.034817     0.000000    0.030000
+
+ADD
+REAL         USER        SYSTEM
+0.005643     0.000000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.000336     0.000000    0.010000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000290     0.000000    0.000000
+
+--------------TEST 3--------------
+-------files length: long--------
+-------number of blocks: 10-------
+MERGE
+REAL         USER        SYSTEM
+0.000684     0.000000    0.000000
+
+ADD
+REAL         USER        SYSTEM
+0.000111     0.000000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.000014     0.000000    0.000000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000833     0.000000    0.000000
+
+-------number of blocks: 500-------
+MERGE
+REAL         USER        SYSTEM
+0.020205     0.010000    0.020000
+
+ADD
+REAL         USER        SYSTEM
+0.005944     0.000000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.000684     0.000000    0.000000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.000958     0.000000    0.000000
+
+-------number of blocks: 1000-------
+MERGE
+REAL         USER        SYSTEM
+0.043293     0.030000    0.020000
+
+ADD
+REAL         USER        SYSTEM
+0.013595     0.010000    0.000000
+
+DELETE
+REAL         USER        SYSTEM
+0.001363     0.000000    0.000000
+
+DELETE AND ADD
+REAL         USER        SYSTEM
+0.001087     0.000000    0.000000
+
