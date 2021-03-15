@@ -10,7 +10,7 @@ struct main_table* create_table(int size){
     return table;
 }
 
-struct file_info merge_pair(struct files_pair* files){
+struct file_info* merge_pair(struct files_pair* files){
 
     int no_lines = 0;
 
@@ -18,7 +18,7 @@ struct file_info merge_pair(struct files_pair* files){
     if(first_file_ptr == NULL) printf("Error while opening file %s", files->first_file);
     FILE* second_file_ptr = fopen(files->second_file, "r");
     if(second_file_ptr == NULL) printf("Error while opening file %s", files->second_file);
-    FILE* temp_file_ptr = fopen("merge.txt", "w");
+    FILE* temp_file_ptr = tmpfile();
 
     char* line1 = NULL;
     char* line2 = NULL;
@@ -47,39 +47,40 @@ struct file_info merge_pair(struct files_pair* files){
     free(line2);
     fclose(first_file_ptr);
     fclose(second_file_ptr);
-    fclose(temp_file_ptr);
-
-    struct file_info merged;
-    merged.filename = "merge.txt";
-    merged.no_lines = no_lines;
+    rewind(temp_file_ptr);
+    struct file_info* merged = (struct file_info*) calloc(1,sizeof(struct file_info));
+    merged->file = temp_file_ptr;
+    merged->no_lines = no_lines;
 
     return merged;
 
 }
 
-struct block* create_block(struct file_info merged){
-    FILE* tmp_file_ptr = fopen(merged.filename, "r");
+struct block* create_block(struct file_info* merged){
+    FILE* tmp_file_ptr = merged->file;
     if(tmp_file_ptr == NULL){
         perror("Error while opening merged file");
         return NULL;
     }
 
     struct block* blk = calloc(1, sizeof(blk));
-    blk->total_size = merged.no_lines;
-    blk->current_size = merged.no_lines;
-    blk->rows = (char**) calloc(merged.no_lines, sizeof(char*));
+    blk->total_size = merged->no_lines;
+    blk->current_size = merged->no_lines;
+    blk->rows = (char**) calloc(merged->no_lines, sizeof(char*));
 
     char* line = NULL;
     size_t line_len = 0;
-    for (int i = 0; i < merged.no_lines; i+=1){
+
+    for (int i = 0; i < merged->no_lines; i+=1){
         getline(&line, &line_len, tmp_file_ptr);
         blk->rows[i] = (char*) calloc(strlen(line), sizeof(char));
         strncpy(blk->rows[i], line, sizeof(char)*strlen(line));
     }
     
     free(line);
-    fclose(tmp_file_ptr);
-
+    tmp_file_ptr = NULL;
+    //fclose(tmp_file_ptr);
+    //free(merged);
     return blk;
 }
 
@@ -95,7 +96,7 @@ int add_block(struct main_table* table, struct block* blk){
 }
 
 int merge_and_add(struct main_table* table, struct files_pair* pair){
-    struct file_info merged = merge_pair(pair);
+    struct file_info* merged = merge_pair(pair);
     struct block* blk = create_block(merged);
     return add_block(table, blk);
 }
@@ -129,6 +130,7 @@ void remove_block(struct main_table* table, int index){
         return;
     }
     struct block* blk = table -> blocks[index];
+    if(blk == NULL) return;
     for(int i = 0; i < blk->total_size; i+=1){
         free(blk->rows[i]);
     }
@@ -186,4 +188,14 @@ struct sequence* create_sequence(int size){
     seq->pairs = (struct files_pair**) calloc(size, sizeof(struct files_pair*));
     seq->size = size;
     return seq;
+}
+
+void free_main_table(struct main_table* table){
+    printf("I am in\n");
+    if (table == NULL) return;
+    for (int i = 0; i < table->size; i+=1){
+        remove_block(table, i);
+    }
+    free(table->blocks);
+    free(table);
 }

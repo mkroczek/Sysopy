@@ -14,7 +14,7 @@ struct sequence{
 };
 
 struct file_info{
-    char* filename;
+    FILE* file;
     int no_lines;
 };
 
@@ -30,8 +30,8 @@ struct main_table{
 };
 
 struct main_table* create_table(int size);
-struct file_info merge_pair(struct files_pair* files);
-struct block* create_block(struct file_info temp_file);
+struct file_info* merge_pair(struct files_pair* files);
+struct block* create_block(struct file_info* temp_file);
 int add_block(struct main_table* table, struct block* blk);
 int merge_and_add(struct main_table* table, struct files_pair* pair);
 void merge_files(struct main_table* table, struct sequence* seq);
@@ -42,5 +42,6 @@ void remove_row_from_block(struct main_table* table, int block_index, int row);
 void print_block(struct main_table* table, int index);
 void print_all(struct main_table* table);
 struct sequence* create_sequence(int size);
+void free_main_table(struct main_table* table);
 
 #endif
