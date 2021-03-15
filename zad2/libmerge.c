@@ -191,7 +191,6 @@ struct sequence* create_sequence(int size){
 }
 
 void free_main_table(struct main_table* table){
-    printf("I am in\n");
     if (table == NULL) return;
     for (int i = 0; i < table->size; i+=1){
         remove_block(table, i);

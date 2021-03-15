@@ -78,40 +78,44 @@ void pass_test(struct test* test, char* result_filename){
         table = create_table(test->numbers_of_blocks[i]);
         struct file_info** merged_files = (struct file_info**) calloc(test->numbers_of_blocks[i], sizeof(struct file_info*)); 
         
-        printf("Before merge\n");
         //MERGE
-        real_times[0] = times(&usr_sys_times[0]);
+        times(&usr_sys_times[0]);
+        real_times[0] = clock();
         for (int j = 0; j<test->numbers_of_blocks[i]; j+=1){
             merged_files[j] = merge_pair(test->seq->pairs[j%test->seq->size]);
         }
-        real_times[1] = times(&usr_sys_times[1]);
+        times(&usr_sys_times[1]);
+        real_times[1] = clock();
 
-        printf("Before add\n");
         //ADD
-        real_times[2] = times(&usr_sys_times[2]);
+        times(&usr_sys_times[2]);
+        real_times[2] = clock();
         for (int j = 0; j<test->numbers_of_blocks[i]; j+=1){
             struct block* blk = create_block(merged_files[j]);
             add_block(table, blk);
         }
-        real_times[3] = times(&usr_sys_times[3]);
+        times(&usr_sys_times[3]);
+        real_times[3] = clock();
 
-        printf("Before delete\n");
         //DELETE
-        real_times[4] = times(&usr_sys_times[4]);
+        times(&usr_sys_times[4]);
+        real_times[4] = clock();
         for (int j = 0; j<test->numbers_of_blocks[i]; j+=1){
             remove_block(table, j);
         }
-        real_times[5] = times(&usr_sys_times[5]);
+        times(&usr_sys_times[5]);
+        real_times[5] = clock();
         
-        printf("Before add and delete\n");
         //ADD AND DELETE
-        real_times[6] = times(&usr_sys_times[6]);
+        times(&usr_sys_times[6]);
+        real_times[6] = clock();
         for (int j = 0; j<100; j+=1){
             struct block* blk = create_block(merged_files[j%test->numbers_of_blocks[i]]);
             add_block(table, blk);
             remove_block(table, 0);
         }
-        real_times[7] = times(&usr_sys_times[7]);
+        times(&usr_sys_times[7]);
+        real_times[7] = clock();
 
         for(int j = 0; j < 4; j+=1){
             operations[j].real_time = (double)(real_times[2*j+1]-real_times[2*j])/CLOCKS_PER_SEC;
@@ -130,7 +134,6 @@ void pass_test(struct test* test, char* result_filename){
         //free(real_times);
         free_main_table(table);
         table = NULL;
-        printf("%d\n", table);
 
     }
     fclose(file);
@@ -227,15 +230,15 @@ int main(int argc, char** argv){
     struct sequence* medium_seq = create_seq(3,medium_pairs);
     struct sequence* long_seq = create_seq(3,long_pairs);
 
-    int cases[] = {5, 100, 500};
+    int cases[] = {10, 500, 1000};
 
     struct test* test_short = create_test(1,"short", 3, cases, short_seq);
     struct test* test_medium = create_test(1,"medium", 3, cases, medium_seq);
     struct test* test_long = create_test(1,"long", 3, cases, long_seq);
 
-    pass_test(test_short, "result2.txt");
-    pass_test(test_medium, "result2.txt");
-    pass_test(test_long, "result2.txt");
+    pass_test(test_short, "raport2.txt");
+    pass_test(test_medium, "raport2.txt");
+    pass_test(test_long, "raport2.txt");
 
     return 0;
 }
