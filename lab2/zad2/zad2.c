@@ -25,8 +25,10 @@ int main(int argc, char** argv){
     char character;
     char* filename;
 
-    character = argv[1];
+    character = argv[1][0];
     filename = argv[2];
+
+    print_containing(character, filename);
 
     return 0;
 }
