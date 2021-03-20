@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
 
-int getline_sys(char** line, size_t* length, int descriptor){
+int getline_lib(char** line, size_t* length, FILE* file){
     //returns number of read characters
     char* buf = (char*) calloc(256, sizeof(char));
     char* ptr;
@@ -15,7 +12,7 @@ int getline_sys(char** line, size_t* length, int descriptor){
     size_t i = 0;
 
     while(i < current_buffer_size){
-        while(i < current_buffer_size && read(descriptor, &c, 1) == 1){
+        while(i < current_buffer_size && fread(&c, sizeof(char), 1, file) == 1){
             buf[i] = c;
             i += 1;
             if (c == '\n') break;
@@ -48,35 +45,35 @@ int get_tens(int number){
     return (number/10)%10;
 }
 
-void fulfill_files(int data, int a, int b, int c){
+void fulfill_files(FILE* data, FILE* a, FILE* b, FILE* c){
     int even = 0;
     char* line = NULL;
     size_t length = 0;
     int number;
     char* number_str = (char*) calloc(12, sizeof(char));
-    while (getline_sys(&line, &length, data) != 0){
+    while (getline_lib(&line, &length, data) != 0){
         number = atoi(line);
         if (number%2 == 0) even += 1;
-        if (get_tens(number) == 0 || get_tens(number) == 7) write(b, line, strlen(line));
-        if (is_quarter(number) == 1) write(c, line, strlen(line));
+        if (get_tens(number) == 0 || get_tens(number) == 7) fwrite(line, sizeof(char), strlen(line), b);
+        if (is_quarter(number) == 1) fwrite(line, sizeof(char), strlen(line), c);
     }
     sprintf(number_str, "%d", even);
-    write(a, number_str, strlen(number_str));
+    fwrite(number_str, sizeof(char), strlen(number_str), a);
     free(number_str);
 }
 
 int main(int argc, char** argv){
-    int data = open("dane.txt", O_RDONLY);
-    int a = open("a.txt", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR|S_IWUSR);
-    int b = open("b.txt", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR|S_IWUSR);
-    int c = open("c.txt", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR|S_IWUSR);
+    FILE* data = fopen("dane.txt", "r");
+    FILE* a = fopen("a.txt", "w");
+    FILE* b = fopen("b.txt", "w");
+    FILE* c = fopen("c.txt", "w");
 
     fulfill_files(data, a, b, c);
 
-    close(data);
-    close(a);
-    close(b);
-    close(c);
+    fclose(data);
+    fclose(a);
+    fclose(b);
+    fclose(c);
 
     return 0;
 }

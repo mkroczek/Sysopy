@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-all: zad3sys zad2lib
+all: zad3sys zad3lib
 
-zad2sys: zad3sys.c
+zad3sys: zad3sys.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-zad2lib: zad3lib.c
+zad3lib: zad3lib.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 clean: 
