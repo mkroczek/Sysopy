@@ -1,0 +1,51 @@
+----------TEST with fork-------------
+-------files length: short--------
+-------number of blocks: 10-------
+MERGE
+REAL         USER        SYSTEM
+0.000551     0.000000    0.000000
+
+-------number of blocks: 500-------
+MERGE
+REAL         USER        SYSTEM
+0.024417     0.000000    0.020000
+
+-------number of blocks: 1000-------
+MERGE
+REAL         USER        SYSTEM
+0.045564     0.000000    0.050000
+
+----------TEST with fork-------------
+-------files length: medium--------
+-------number of blocks: 10-------
+MERGE
+REAL         USER        SYSTEM
+0.000430     0.000000    0.000000
+
+-------number of blocks: 500-------
+MERGE
+REAL         USER        SYSTEM
+0.024753     0.000000    0.020000
+
+-------number of blocks: 1000-------
+MERGE
+REAL         USER        SYSTEM
+0.045123     0.000000    0.040000
+
+----------TEST with fork-------------
+-------files length: long--------
+-------number of blocks: 10-------
+MERGE
+REAL         USER        SYSTEM
+0.000436     0.000000    0.000000
+
+-------number of blocks: 500-------
+MERGE
+REAL         USER        SYSTEM
+0.029842     0.000000    0.020000
+
+-------number of blocks: 1000-------
+MERGE
+REAL         USER        SYSTEM
+0.050088     0.000000    0.050000
+
