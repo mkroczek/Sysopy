@@ -74,6 +74,7 @@ void test_pending(int sig){
     if (sigismember(&mask, sig)) raise(TEST_PASSED);
     if (fork() == 0){
         sigset_t mask_fork;
+        sigemptyset(&mask_fork);
         sigpending(&mask_fork);
         if (sigismember(&mask_fork, sig)) kill(getppid(), TEST_PASSED);
         exit(1);
