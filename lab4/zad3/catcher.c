@@ -16,7 +16,11 @@ void start_sending(pid_t sender_pid){
             printf("Catcher sent signal %d to sender\n", signal);
         }
         else if(strcmp(sending_mode, "sigqueue") == 0){
-            
+            union sigval value;
+            value.sival_ptr = NULL; 
+            value.sival_int = i;
+            sigqueue(sender_pid, signal, value);
+            printf("Catcher sent signal %d to sender\n", signal);
         }
         else if(strcmp(sending_mode, "sigrt") == 0){
             
@@ -26,7 +30,7 @@ void start_sending(pid_t sender_pid){
     exit(1);
 }
 
-void handler_usr1(int sig){
+void handler_usr1(int sig, siginfo_t *info, void* context){
     if (sig == SIGUSR1){
         caugth_signals += 1;
     }
@@ -40,7 +44,7 @@ void handler_usr2(int sig, siginfo_t *info, void* context){
 
 void start_catching(int ppid){
     sigset_t block_set, allowed_set;
-    struct sigaction usr2_action;
+    struct sigaction usr2_action, usr1_action;
     int noticed_parent = 0;
 
     printf("Catcher PID = %d\n", getpid());
@@ -54,10 +58,12 @@ void start_catching(int ppid){
 
     usr2_action.sa_sigaction = handler_usr2;
     usr2_action.sa_flags = SA_SIGINFO;
+    usr1_action.sa_sigaction = handler_usr1;
+    usr1_action.sa_flags = SA_SIGINFO;
 
-    signal(SIGUSR1, handler_usr1);
+    // signal(SIGUSR1, handler_usr1);
     sigaction(SIGUSR2, &usr2_action, NULL);
-    // sigaction(SIGUSR1, &usr1_action, NULL);
+    sigaction(SIGUSR1, &usr1_action, NULL);
 
     while(1){
         if (noticed_parent == 0){

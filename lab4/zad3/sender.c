@@ -8,9 +8,11 @@ int caught_signals = 0;
 int catcher_pid;
 int ppid;
 
-void handler_usr1(int sig){
+void handler_usr1(int sig, siginfo_t *info, void* context){
     if (sig == SIGUSR1){
-        printf("Sender caught signal\n");
+        if (info->si_value.sival_int > 0){
+            printf("For now sender knows, that catcher sent %d signals\n", info->si_value.sival_int);
+        }
         caught_signals += 1;
     }
 }
@@ -49,7 +51,15 @@ void send_kill(){
 }
 
 void send_sigqueue(){
-    
+    union sigval value;
+    value.sival_ptr = NULL;
+    for (int i = 1; i <= n_signals; i++){
+        value.sival_int = i;
+        sigqueue(catcher_pid, SIGUSR1, value);
+    }
+    value.sival_int = 1;
+    sigqueue(catcher_pid, SIGUSR2, value);
+    start_catching();
 }
 
 void send_sigrt(){
@@ -62,9 +72,13 @@ int main(int argc, char** argv){
     n_signals = atoi(argv[2]);
     char* sending_mode = argv[3];
     ppid = atoi(argv[4]);
+    struct sigaction usr1_action;
 
+    usr1_action.sa_sigaction = handler_usr1;
+    usr1_action.sa_flags = SA_SIGINFO;
+
+    sigaction(SIGUSR1, &usr1_action, NULL);
     signal(SIGUSR2, handler_usr2);
-    signal(SIGUSR1, handler_usr1);
 
     if(strcmp(sending_mode, "kill") == 0){
         send_kill();
