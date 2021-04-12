@@ -8,17 +8,24 @@
 char* n_signals;
 int catcher_pid;
 char* sending_mode;
+int endend = 0;
 
 void action(int sig){
-    printf("I got signal\n");
-    char* c_pid = (char*) calloc(10, sizeof(char));
     if (sig == 10){
+        char* c_pid = (char*) calloc(10, sizeof(char));
+        char* ppid = (char*) calloc(10, sizeof(char));
         if (fork() == 0){
-            printf("c_pid = %d\n", catcher_pid);
             sprintf(c_pid, "%d", catcher_pid);
-            execlp("./sender", "./sender", catcher_pid, n_signals, sending_mode, "kill",NULL);
+            sprintf(ppid, "%d", getppid());
+            execlp("./sender", "./sender", c_pid, n_signals, sending_mode, ppid, NULL);
         }
+        free(c_pid);
+        free(ppid);
     }
+    else if(sig == 12){
+        endend = 1;
+    }
+    // wait(NULL);
 }
 
 int main(int argc, char** argv){
@@ -26,19 +33,22 @@ int main(int argc, char** argv){
     n_signals = argv[1];
     sending_mode = argv[2];
     char* ppid = (char*) calloc(10, sizeof(char));
-    // catcher_pid = (char*) calloc(10, sizeof(char));
-    signal(10, action);
+    signal(SIGUSR1, action);
+    signal(SIGUSR2, action);
 
     printf("Main process pid = %d\n", getpid());
 
-    if (fork() == 0){
-        catcher_pid = getpid();
+    if ((catcher_pid = fork()) == 0){
         sprintf(ppid, "%d", getppid());
         execlp("./catcher", "./catcher", ppid, sending_mode, NULL);
     }
 
-    wait(NULL);
-    free(ppid);
-
-    return 0;
+    // wait(NULL);
+    while(1){
+        if (endend == 1){
+            free(ppid);
+            printf("Main program finished execution.\n");
+            return 0;
+        }
+    }
 }

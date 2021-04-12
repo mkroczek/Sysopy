@@ -13,6 +13,7 @@ void start_sending(pid_t sender_pid){
         if (i == caugth_signals + 1) signal = SIGUSR2;
         if(strcmp(sending_mode, "kill") == 0){
             kill(sender_pid, signal);
+            printf("Catcher sent signal %d to sender\n", signal);
         }
         else if(strcmp(sending_mode, "sigqueue") == 0){
             
@@ -28,7 +29,6 @@ void start_sending(pid_t sender_pid){
 void handler_usr1(int sig){
     if (sig == SIGUSR1){
         caugth_signals += 1;
-        printf("Caught a signal\n");
     }
 }
 
@@ -51,13 +51,13 @@ void start_catching(int ppid){
     sigdelset(&allowed_set, SIGUSR2);
 
     sigprocmask(SIG_SETMASK, &block_set, NULL);
-    // sigprocmask(SIG_UNBLOCK, &allowed_set, NULL);
 
     usr2_action.sa_sigaction = handler_usr2;
     usr2_action.sa_flags = SA_SIGINFO;
 
     signal(SIGUSR1, handler_usr1);
     sigaction(SIGUSR2, &usr2_action, NULL);
+    // sigaction(SIGUSR1, &usr1_action, NULL);
 
     while(1){
         if (noticed_parent == 0){
