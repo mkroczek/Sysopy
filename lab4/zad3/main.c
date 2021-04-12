@@ -25,7 +25,6 @@ void action(int sig){
     else if(sig == 12){
         endend = 1;
     }
-    // wait(NULL);
 }
 
 int main(int argc, char** argv){
@@ -43,7 +42,6 @@ int main(int argc, char** argv){
         execlp("./catcher", "./catcher", ppid, sending_mode, NULL);
     }
 
-    // wait(NULL);
     while(1){
         if (endend == 1){
             free(ppid);
