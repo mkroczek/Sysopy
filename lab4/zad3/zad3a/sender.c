@@ -26,7 +26,6 @@ void handler_usr2(int sig){
 }
 
 void start_catching(){
-    printf("Start catching started\n");
     sigset_t block_set, allowed_set;
 
     sigfillset(&block_set);
@@ -47,7 +46,6 @@ void send_kill(){
     for (int i = 1; i <= n_signals; i++){
         kill(catcher_pid, SIGUSR1);
     }
-    printf("Now I should start catching\n");
     kill(catcher_pid, SIGUSR2);
     start_catching();
 }
@@ -68,7 +66,6 @@ void send_sigrt(){
     for (int i = 1; i <= n_signals; i++){
         kill(catcher_pid, SIGRTMIN + 0);
     }
-    printf("Now I should start catching\n");
     kill(catcher_pid, SIGRTMIN + 1);
     start_catching();
 }

@@ -35,8 +35,6 @@ int main(int argc, char** argv){
     signal(SIGUSR1, action);
     signal(SIGUSR2, action);
 
-    printf("Main process pid = %d\n", getpid());
-
     if ((catcher_pid = fork()) == 0){
         sprintf(ppid, "%d", getppid());
         execlp("./catcher", "./catcher", ppid, sending_mode, NULL);

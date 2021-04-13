@@ -13,20 +13,17 @@ void start_sending(pid_t sender_pid){
         if (i == caugth_signals + 1) signal = SIGUSR2;
         if(strcmp(sending_mode, "kill") == 0){
             kill(sender_pid, signal);
-            printf("Catcher sent signal %d to sender\n", signal);
         }
         else if(strcmp(sending_mode, "sigqueue") == 0){
             union sigval value;
             value.sival_ptr = NULL; 
             value.sival_int = i;
             sigqueue(sender_pid, signal, value);
-            printf("Catcher sent signal %d to sender\n", signal);
         }
         else if(strcmp(sending_mode, "sigrt") == 0){
             signal = SIGRTMIN+0;
             if (i == caugth_signals + 1) signal = SIGRTMIN+1;
             kill(sender_pid, signal);
-            printf("Catcher sent signal %d to sender\n", signal);
         }
     }
     printf("Catcher received %d signals, and ends work\n", caugth_signals);
@@ -49,8 +46,6 @@ void start_catching(int ppid){
     sigset_t block_set, allowed_set;
     struct sigaction usr2_action, usr1_action;
     int noticed_parent = 0;
-
-    printf("Catcher PID = %d\n", getpid());
 
     sigfillset(&block_set);
     sigfillset(&allowed_set);
@@ -86,7 +81,7 @@ int main(int argc, char** argv){
     int ppid = atoi(argv[1]);
     sending_mode = argv[2];
     
-    printf("Catcher pid = %d\n", getpid());
+    printf("Catcher PID = %d\n", getpid());
     start_catching(ppid);
 
     return 0;

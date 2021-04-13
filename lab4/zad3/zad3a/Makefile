@@ -13,13 +13,13 @@ catcher: catcher.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test_kill: main sender catcher
-	./main 5 kill
+	./main 1000 kill
 
 test_sigqueue: main sender catcher
-	./main 10 sigqueue
+	./main 1000 sigqueue
 
 test_sigrt: main sender catcher
-	./main 10 sigrt
+	./main 1000 sigrt
 
 clean:
 	rm main sender catcher
