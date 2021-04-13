@@ -9,11 +9,13 @@
 #define TEST_PASSED SIGUSR2
 
 void test_handler(int signum){
-    write(STDOUT_FILENO, "Now I am handling signal\n", 26);
+    // write(STDOUT_FILENO, "Now I am handling signal\n", 26);
+    printf("Now I am handling signal\n");
 }
 
 void handlerUSR2(int signum){
-    write(STDOUT_FILENO, "Test succeded\n", 15);
+    // write(STDOUT_FILENO, "Test succeded\n", 15);
+    printf("Test succeded\n");
 }
 
 void test_ignore(int sig){

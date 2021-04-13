@@ -1,0 +1,40 @@
+-----FORK TEST------
+
+-------IGNORE-------
+
+Test succeded
+Test succeded
+
+-------HANDLE-------
+
+Now I am handling signal
+Now I am handling signal
+Now I am handling signal
+Test succeded
+Test succeded
+
+-------MASK-------
+
+Test succeded
+Test succeded
+
+-------PENDING-------
+
+
+
+-----EXEC TEST------
+
+-------IGNORE-------
+
+Test succeded
+Test succeded
+
+-------MASK-------
+
+Test succeded
+Test succeded
+
+-------PENDING-------
+
+Test succeded
+Test succeded
