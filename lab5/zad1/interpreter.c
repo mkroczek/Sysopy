@@ -241,7 +241,7 @@ int main(int argc, char** argv){
             }
         }
         else if (reading_elements == 0){
-            printf("Line = %s\n", line);
+            printf("Executing commands %s\n", line);
             struct element superelement = create_superelement(line, elements);
             int descriptors_size = superelement.n_commands - 1;
             int** descriptors = prepare_descriptors(descriptors_size);
@@ -264,11 +264,11 @@ int main(int argc, char** argv){
                     }
                     args[command->n_args+1] = NULL;
 
-                    //print
-                    for (int j = 0; j < command->n_args+2; j ++){
-                        printf("Argument =%s\n", args[j]);
-                    }
-                    printf("\n");
+                    // //print
+                    // for (int j = 0; j < command->n_args+2; j ++){
+                    //     printf("Argument =%s\n", args[j]);
+                    // }
+                    // printf("\n");
 
                     if (command_count > 0){
                         dup2(descriptors[command_count-1][0], STDIN_FILENO);
