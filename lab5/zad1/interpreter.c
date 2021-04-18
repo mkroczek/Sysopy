@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-struct node{
-    char* argument;
-    struct node* next;
-};
+#define MAX_PROGRAMS 10
 
 struct command{
     char* prog;
-    struct node* arguments;
+    char** arguments;
+    int n_args;
 };
 
 struct command_node{
@@ -19,35 +19,16 @@ struct command_node{
 
 struct element{
     int id;
+    int n_commands;
     struct command_node* commands;
 };
 
-struct node* append(struct node* head, struct node* next){
-    struct node* i = head;
-    if (head == NULL){
-        head = next;
-        return head;
-    }
-    while (i->next){
-        i = i->next;
-    }
-    i->next = next;
-    return head;
-}
-
-void destroy(struct node* head){
-    struct node* next;
-    while (head){
-        next = head->next;
-        free(head->argument);
-        free(head);
-        head = next;
-    }
-}
-
 void free_command(struct command* command){
     free(command->prog);
-    destroy(command->arguments);
+    for (int i = 0; i < command -> n_args; i++){
+        free(command->arguments[i]);
+    }
+
 }
 
 struct command_node* append_command(struct command_node* head, struct command_node* next){
@@ -111,22 +92,33 @@ int get_element_id(char* element_name){
 
 struct command* parse_command(char* string){
     struct command* cmd = (struct command*) calloc(1, sizeof(struct command));
+    int n_arguments = 40;
+    int i = 0;
+    char** arguments = (char**) calloc(n_arguments, sizeof(char*)); 
     char* ptr;
     char* pch;
+    char** buf;
     char* end;
-    pch = strtok_r(string, " ", &end);
+    pch = strtok_r(string, " \n", &end);
     cmd->prog = (char*) calloc(strlen(pch), sizeof(char));
     strcpy(cmd->prog, pch);
-    pch = strtok_r(NULL, " ", &end);
+    pch = strtok_r(NULL, " \n", &end);
     while (pch){
         ptr = (char*) calloc(strlen(pch), sizeof(char));
         strcpy(ptr, pch);
-        struct node* argument = (struct node*) calloc(1, sizeof(struct node));
-        argument->argument = ptr;
-        argument->next = NULL;
-        cmd->arguments = append(cmd->arguments, argument);
-        pch = strtok_r(NULL, " ", &end);
+        arguments[i] = ptr;
+        i ++;
+        if (i >= n_arguments){
+            n_arguments *= 2;
+            buf = (char**) realloc(arguments, n_arguments);
+            arguments = buf;
+        }
+        pch = strtok_r(NULL, " \n", &end);
     }
+    buf = (char**) realloc(arguments, i);
+    arguments = buf;
+    cmd->arguments = arguments;
+    cmd->n_args = i;
     return cmd;
     
 }
@@ -137,6 +129,7 @@ struct element parse_element(char* string){
     char* pch;
     char* end;
     element.commands = NULL;
+    element.n_commands = 0;
     pch = strtok_r(string, "=", &end); // gives element name
     element.id = get_element_id(pch);
     pch = strtok_r(NULL, "|", &end);
@@ -150,6 +143,7 @@ struct element parse_element(char* string){
             printf("Couldn't create command.\n");
         }
         element.commands = append_command(element.commands, command);
+        element.n_commands ++;
         if (element.commands == NULL){
             printf("Couldn't append command.\n");
         }
@@ -158,6 +152,63 @@ struct element parse_element(char* string){
     }
     return element;
     
+}
+
+int** prepare_descriptors(int size){
+    int** descriptors = (int **) calloc(size, sizeof(int*));
+    for (int i = 0; i < size; i++){
+        int* descriptor = (int*) calloc(2, sizeof(int));
+        descriptors[i] = descriptor;
+        descriptors[i][0] = -1;
+        descriptors[i][1] = -1;
+    }
+    return descriptors;
+}
+
+void destroy_descriptors(int** descriptors, int size){
+    for (int i = 0; i < size; i++){
+        free(descriptors[i]);
+    }
+    free(descriptors);
+    descriptors = NULL;
+}
+
+struct element create_superelement(char* line, struct element* elements){
+    struct element superelement;
+    superelement.n_commands = 0;
+    superelement.commands = NULL;
+    struct element current_el;
+    char* pch;
+    char* end;
+    pch = strtok_r(line, " |\n", &end);
+    while (pch){
+        //one element
+        int element_index = get_element_id(pch);
+        current_el = elements[element_index-1];
+        superelement.n_commands += current_el.n_commands;
+        superelement.commands = append_command(superelement.commands, current_el.commands);
+        pch = strtok_r(NULL, " |\n", &end);
+    }
+    return superelement;
+}
+
+void unzip_superelement(char* line, struct element* elements){
+    struct element current_el;
+    struct command_node* command_node;
+    char* pch;
+    char* end;
+    pch = strtok_r(line, " |\n", &end);
+    while (pch){
+        //one element
+        int element_index = get_element_id(pch);
+        current_el = elements[element_index-1];
+        command_node = current_el.commands;
+        for(int i = 1; i < current_el.n_commands; i++){
+            command_node = command_node->next;
+        }
+        command_node->next = NULL;
+        pch = strtok_r(NULL, " |\n", &end);
+    }
 }
 
 int main(int argc, char** argv){
@@ -190,41 +241,73 @@ int main(int argc, char** argv){
             }
         }
         else if (reading_elements == 0){
-            char* pcr = strtok(line, " |\n");
-            while (pcr){
-                //one element
-                int element_index = get_element_id(pcr);
-                struct command_node* command_node = elements[element_index-1].commands;
-                // while (command_node){
-                //     struct command* command = command_node->command;
-                //     printf("Program name: %s\n", command->prog);
-                //     struct node* node = command->arguments;
-                //     while (node)
-                //     {
-                //         printf("Argument = %s\n", node->argument);
-                //         node = node->next;
-                //     }
-                //     command_node = command_node->next;
-                // }
-                while (command_node){
-                    struct command* command = command_node->command;
-                    printf("Program name: %s\n", command->prog);
-                    struct node* node = command->arguments;
-                    while (node)
-                    {
-                        printf("Argument = %s\n", node->argument);
-                        node = node->next;
-                    }
-                    command_node = command_node->next;
-                }
-                pcr = strtok(NULL, " |\n");
+            printf("Line = %s\n", line);
+            struct element superelement = create_superelement(line, elements);
+            int descriptors_size = superelement.n_commands - 1;
+            int** descriptors = prepare_descriptors(descriptors_size);
+
+            for (int j = 0; j < descriptors_size; j++){
+                pipe(descriptors[j]);
             }
+
+            int command_count = 0;
+
+            struct command_node* command_node = superelement.commands;
+            while(command_node){
+                struct command* command = command_node->command;
+                if (fork() == 0){
+                    //prepare arguments
+                    char** args = (char**) calloc(command->n_args + 2, sizeof(char*));
+                    args[0] = command->prog;
+                    for (int j = 0; j < command->n_args; j ++){
+                        args[j+1] = command->arguments[j];
+                    }
+                    args[command->n_args+1] = NULL;
+
+                    //print
+                    for (int j = 0; j < command->n_args+2; j ++){
+                        printf("Argument =%s\n", args[j]);
+                    }
+                    printf("\n");
+
+                    if (command_count > 0){
+                        dup2(descriptors[command_count-1][0], STDIN_FILENO);
+                    }
+                    if (command_count < descriptors_size){
+                        dup2(descriptors[command_count][1], STDOUT_FILENO);
+                    }
+                    for (int p = 0; p < descriptors_size; p++){
+                        if (p != command_count-1)
+                            close(descriptors[p][0]);
+                        if (p != command_count)
+                            close(descriptors[p][1]);
+                    }
+                    execvp(command->prog, args);
+
+                }
+                command_count ++;
+                command_node = command_node->next;
+
+            }
+            for (int j = 0; j < descriptors_size; j++){
+                close(descriptors[j][0]);
+                close(descriptors[j][1]);
+            }
+            for (int j = 0; j < superelement.n_commands; j++){
+                wait(NULL);
+            }
+            unzip_superelement(line, elements);
+            destroy_descriptors(descriptors, descriptors_size);
+
         }
         l = getline_lib(&line, &line_len, commands_file);
         
     }
 
     fclose(commands_file);
+    for (i = i-1; i >= 0; i--){
+        destroy_commands(elements[i].commands);
+    }
     free(elements);
 
     return 0;
