@@ -38,29 +38,46 @@ void add_input(char* save_path, int row, char* string){
     FILE* save_file = fopen(save_path, "r");
     int i = 0;
 
-    char* line = NULL;
-    size_t line_len = 0;
+    if(save_file != NULL){
+        char* line = NULL;
+        size_t line_len = 0;
 
-    int l = getline_lib(&line, &line_len, save_file); 
-    while (l != 0){
-        if (i != row){
-            fputs(line, tmp);
-        }
-        else{
-            if(line[strlen(line)-1] == '\n'){
-                fwrite(line, sizeof(char), strlen(line)-1, tmp);
+        int l = getline_lib(&line, &line_len, save_file); 
+        while (l != 0){
+            if (i != row){
+                fputs(line, tmp);
             }
-            else
-                fwrite(line, sizeof(char), strlen(line), tmp);
-            fputs(string, tmp);
-            fputc('\n', tmp);
+            else{
+                if(line[strlen(line)-1] == '\n'){
+                    fwrite(line, sizeof(char), strlen(line)-1, tmp);
+                }
+                else
+                    fwrite(line, sizeof(char), strlen(line), tmp);
+                fputs(string, tmp);
+                fputc('\n', tmp);
+            }
+            i+=1;
+            free(line);
+            l = getline_lib(&line, &line_len, save_file); 
         }
-        i+=1;
-        l = getline_lib(&line, &line_len, save_file); 
     }
-    fclose(save_file);
+
+    while (i < row){
+        fputc('\n', tmp);
+        i++;
+    }
+
+    if (i == row){
+        fputs(string, tmp);
+        fputc('\n', tmp);
+        i++;
+    }
+
+    if (save_file != NULL){
+        fclose(save_file);
+        remove(save_path);
+    }
     fclose(tmp);
-    remove(save_path);
     rename("temp.txt", save_path);
 
 }
@@ -78,6 +95,9 @@ int main(int argc, char** argv){
         exit(1);
     }
 
+    // remove(save_path);
+    printf("Consumer has been initialized, and save_path has been removed\n");
+
     FILE* pipe_file = fopen(pipe_path, "r");
     // FILE* save_file = fopen(save_path, "w");
 
@@ -92,13 +112,11 @@ int main(int argc, char** argv){
         pch = strtok_r(line, "#\n", &end);
         index = atoi(pch);
         pch = strtok_r(NULL, "#\n", &end);
-        printf("index = %d input = %s\n", index,pch);
         add_input(save_path, index, pch);
         l = getline_lib(&line, &line_len, pipe_file);
 
     }
     fclose(pipe_file);
-    // fclose(save_file);
 
     return 0;
 }

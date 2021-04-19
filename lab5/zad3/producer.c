@@ -18,6 +18,9 @@ int main(int argc, char** argv){
     else{
         exit(1);
     }
+
+    printf("Producer has been initialized\n");
+
     FILE* pipe_file = fopen(pipe_path, "w");
     FILE* resources_file = fopen(resources_path, "r");
 
