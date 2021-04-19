@@ -61,8 +61,13 @@ void validate_output(char* output, char** resources, int n_resources){
                 free(line);
                 getline_lib(&line, &line_len, output_file);
             }
-            else if (strncmp(line, line_resources, strlen(line)-1) == 0)
-                correct = 1;
+            else{
+                char* tmp_line = (char*) calloc(strlen(line)-1, sizeof(char));
+                strncpy(tmp_line, line, strlen(line)-1);
+                if (strcmp(tmp_line, line_resources) == 0)
+                    correct = 1;
+                free(tmp_line);
+            }
             row ++;
         }
         if (correct)
@@ -72,10 +77,6 @@ void validate_output(char* output, char** resources, int n_resources){
         rewind(output_file);
         free(line_resources);
         fclose(resources_file);
-        printf("Everything good at the end of validate_output\n");
-    }
-    if (output_file == NULL){
-        printf("Couldn't open output file\n");
     }
     fclose(output_file);
 }
@@ -123,21 +124,24 @@ void test(int n_consumers, int n_producers, char* N, char** resources_directions
     for(int i = 0; i < n_producers+n_consumers; i++){
         wait(NULL);
     }
+    for (int i = 0; i < n_consumers+n_producers; i++){
+        free(programs[i]);
+    }
+    free(programs);
 }
 
 int main(int argc, char** argv){
 
     char* output_save = "./customer_output.txt";
-    char N[] = "15";
     char* resources_directions[] = {"./resources/1.txt", "./resources/a.txt", "./resources/2.txt", "./resources/3.txt", "./resources/b.txt"};
 
-    // int consumers[] = {1, 5};
-    // int producers[] = {5, 1};
-    int consumers[] = {5};
-    int producers[] = {5};
+    int consumers[] = {1, 5};
+    int producers[] = {5, 1};
+    // int consumers[] = {5};
+    // int producers[] = {5};
     char buf_size[5];
     sprintf(buf_size, "%d", PIPE_BUF + 100);
-    char* N_s[] = {"5", "100", buf_size};
+    char* N_s[] = {"30", "100", buf_size};
 
     for (int c = 0; c < 2; c++){
         for (int p = 0; p < 2; p++){

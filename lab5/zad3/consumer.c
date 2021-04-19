@@ -96,7 +96,6 @@ int main(int argc, char** argv){
     }
 
     // remove(save_path);
-    printf("Consumer has been initialized, and save_path has been removed\n");
 
     FILE* pipe_file = fopen(pipe_path, "r");
     // FILE* save_file = fopen(save_path, "w");

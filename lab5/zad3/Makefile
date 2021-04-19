@@ -12,5 +12,9 @@ producer: producer.c
 main: main.c producer consumer
 	$(CC) $(CFLAGS) $^ -o $@
 
+test: main
+	./main > wnioski.txt
+	make clean
+
 clean:
 	rm main consumer producer

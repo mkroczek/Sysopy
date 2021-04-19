@@ -1,0 +1,60 @@
+
+Results for 1 customers, 5 producers and N = 30
+Output file contains contents of ./resources/1.txt in line 0
+Output file contains contents of ./resources/a.txt in line 1
+Output file contains contents of ./resources/2.txt in line 2
+Output file contains contents of ./resources/3.txt in line 3
+Output file contains contents of ./resources/b.txt in line 4
+
+Results for 1 customers, 5 producers and N = 100
+Output file contains contents of ./resources/1.txt in line 0
+Output file contains contents of ./resources/a.txt in line 1
+Output file contains contents of ./resources/2.txt in line 2
+Output file contains contents of ./resources/3.txt in line 3
+Output file contains contents of ./resources/b.txt in line 4
+
+Results for 1 customers, 5 producers and N = 4196
+Output file contains contents of ./resources/1.txt in line 0
+Output file contains contents of ./resources/a.txt in line 1
+Output file contains contents of ./resources/2.txt in line 2
+Output file contains contents of ./resources/3.txt in line 3
+Output file contains contents of ./resources/b.txt in line 4
+
+Results for 1 customers, 1 producers and N = 30
+Output file contains contents of ./resources/1.txt in line 0
+
+Results for 1 customers, 1 producers and N = 100
+Output file contains contents of ./resources/1.txt in line 0
+
+Results for 1 customers, 1 producers and N = 4196
+Output file contains contents of ./resources/1.txt in line 0
+
+Results for 5 customers, 5 producers and N = 30
+Output file contains contents of ./resources/1.txt in line 0
+Output file contains contents of ./resources/a.txt in line 1
+Output file contains contents of ./resources/2.txt in line 2
+Output file contains contents of ./resources/3.txt in line 3
+Output file contains contents of ./resources/b.txt in line 4
+
+Results for 5 customers, 5 producers and N = 100
+Output file contains contents of ./resources/1.txt in line 0
+Output file contains contents of ./resources/a.txt in line 1
+Output file contains contents of ./resources/2.txt in line 2
+Output file contains contents of ./resources/3.txt in line 3
+Output file contains contents of ./resources/b.txt in line 4
+
+Results for 5 customers, 5 producers and N = 4196
+Output file contains contents of ./resources/1.txt in line 0
+Output file contains contents of ./resources/a.txt in line 1
+Output file contains contents of ./resources/2.txt in line 2
+Output file contains contents of ./resources/3.txt in line 3
+Output file contains contents of ./resources/b.txt in line 4
+
+Results for 5 customers, 1 producers and N = 30
+Output file contains contents of ./resources/1.txt in line 0
+
+Results for 5 customers, 1 producers and N = 100
+Output file contains contents of ./resources/1.txt in line 0
+
+Results for 5 customers, 1 producers and N = 4196
+Output file contains contents of ./resources/1.txt in line 0
