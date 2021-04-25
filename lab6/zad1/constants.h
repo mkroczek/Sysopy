@@ -4,6 +4,9 @@
 #define DISCONNECT 4
 #define STOP 5
 
+#define SEND 6
+#define RECEIVE 7
+
 #define AVAILABLE -1
 #define UNAVAILABLE 1
 

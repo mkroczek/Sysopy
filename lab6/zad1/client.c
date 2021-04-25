@@ -56,6 +56,15 @@ void run_command(char* buf){
         // printf("I want to run CONNECT to id = %d\n", id);
         
     }
+    else if (strcmp(pch, "SEND") == 0){
+        pch = strtok_r(NULL, "\0", &end);
+        message msg;
+        msg.type = RECEIVE;
+        msg.id = private_id;
+        strcpy(msg.text, pch);
+        send_msg(friend_queue, &msg);
+        
+    }
     else if (strcmp(pch, "DISCONNECT") == 0){
         printf("I want to disconnect\n");
         
@@ -64,6 +73,10 @@ void run_command(char* buf){
         printf("I wanto to stop\n");
         
     }
+}
+
+void receive_friend(message* msg){
+    printf("From %d:\n%s", msg->id, msg->text);
 }
 
 void receive(){
@@ -94,6 +107,9 @@ void receive(){
                 break;
             case CONNECT:
                 connect(&msg);
+                break;
+            case RECEIVE:
+                receive_friend(&msg);
                 break;
             default:
                 break;
