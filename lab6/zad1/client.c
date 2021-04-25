@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/select.h>
+#include <signal.h>
 
 int server_queue, private_queue, friend_queue;
 int private_id;
@@ -25,6 +26,11 @@ void connect(message* msg){
     printf("Client received a respond message and connects to %d\n", friend_queue);
 }
 
+void disconnect(message* msg){
+    friend_queue = -1;
+    printf("%s", msg->text);
+}
+
 int get_input(char* buf, int buf_len){
     int n_char = 0;
     n_char = read(0, buf, buf_len-1);
@@ -33,6 +39,17 @@ int get_input(char* buf, int buf_len){
     }
     buf[n_char] = '\0';
     return n_char;
+}
+
+void stop(){
+    if(server_queue >= 0){
+        message msg;
+        msg.type = STOP;
+        msg.id = private_id;
+        send_msg(server_queue, &msg);
+    }
+    delete_queue(private_queue);
+    exit(1);
 }
 
 void run_command(char* buf){
@@ -47,14 +64,11 @@ void run_command(char* buf){
     }
     else if (strcmp(pch, "CONNECT") == 0){
         pch = strtok_r(NULL, " \n\0", &end);
-        // int id = atoi(pch);
         message msg;
         msg.type = CONNECT;
         msg.id = private_id;
         strcpy(msg.text, pch);
-        send_msg(server_queue, &msg);
-        // printf("I want to run CONNECT to id = %d\n", id);
-        
+        send_msg(server_queue, &msg);        
     }
     else if (strcmp(pch, "SEND") == 0){
         pch = strtok_r(NULL, "\0", &end);
@@ -66,11 +80,14 @@ void run_command(char* buf){
         
     }
     else if (strcmp(pch, "DISCONNECT") == 0){
-        printf("I want to disconnect\n");
+        message msg;
+        msg.type = DISCONNECT;
+        msg.id = private_id;
+        send_msg(server_queue, &msg);
         
     }
     else if (strcmp(pch, "STOP") == 0){
-        printf("I wanto to stop\n");
+        stop();
         
     }
 }
@@ -108,8 +125,14 @@ void receive(){
             case CONNECT:
                 connect(&msg);
                 break;
+            case DISCONNECT:
+                disconnect(&msg);
+                break;
             case RECEIVE:
                 receive_friend(&msg);
+                break;
+            case STOP:
+                stop(&msg);
                 break;
             default:
                 break;
@@ -118,6 +141,12 @@ void receive(){
         readfds = savedfds;
     }
 
+}
+
+void end_handler(int signum){
+    if (signum == SIGINT){
+        stop();
+    }
 }
 
 void init(){
@@ -134,9 +163,10 @@ void init(){
 }
 
 int main (int argc, char** argv){
-    
+
+    atexit(stop);
+    signal(SIGINT, end_handler);
     init();
     receive();
-    delete_queue(private_queue);
     return 0;
 }

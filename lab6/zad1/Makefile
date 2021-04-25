@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-all: server
+all: client server
 
 client: client.c keys.c que_utils.c
 	$(CC) $(CFLAGS) $^ -o $@

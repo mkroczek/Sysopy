@@ -4,7 +4,7 @@
 #include <errno.h>
 
 int create_queue(key_t key){
-    return msgget(key, IPC_CREAT | 0600);
+    return msgget(key, IPC_CREAT | 0666);
 }
 
 int get_queue(key_t key){
