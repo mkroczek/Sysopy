@@ -4,5 +4,8 @@
 #define DISCONNECT 4
 #define STOP 5
 
+#define AVAILABLE -1
+#define UNAVAILABLE 1
+
 #define MAX_CLIENTS 20
 #define MAX_MSG_LEN 1024

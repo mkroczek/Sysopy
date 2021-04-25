@@ -22,9 +22,9 @@ void send_msg(int queue, message* msg){
 }
 
 int receive_msg(int queue, message* msg){
-    int received = msgrcv(queue, msg, MESSAGE_SIZE, -100, 0);
+    int received = msgrcv(queue, msg, MESSAGE_SIZE, -100, IPC_NOWAIT);
     if (received == -1){
-        perror("Couldn't receive message");
+        // perror("Couldn't receive message");
     }
     return received;
 }
