@@ -1,20 +1,20 @@
 #ifndef QUE_H
 #define QUE_H
 #include <sys/ipc.h>
+#include <mqueue.h>
 #include "constants.h"
 
-typedef struct message{
-    long type;
-    int id;
-    char text[MAX_MSG_LEN];
-}message;
+// typedef struct message{
+//     long type;
+//     int id;
+//     char text[MAX_MSG_LEN];
+// }message;
 
-int create_queue(key_t key);
-int get_queue(key_t key);
-int delete_queue(int queue);
-void send_msg(int queue, message* msg);
-int receive_msg(int queue, message* msg);
-
-#define MESSAGE_SIZE sizeof(message) - sizeof(long)
+int create_queue(char* queue_name);
+int get_queue(char* queue_name);
+int delete_queue(char* queue_name);
+int close_queue(mqd_t mqdes);
+int send_msg(mqd_t mqdes, char* msg, int type);
+int receive_msg(mqd_t mqdes, char* msg, int* type);
 
 #endif

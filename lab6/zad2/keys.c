@@ -2,19 +2,33 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-key_t get_server_key(){
-    key_t key;
-    if ((key = ftok(getenv("HOME"), SERVER_KEY)) == -1){
-        perror("Couldn't generate server key\n");
-    }
-    return key;
+char* get_server_name(){
+    return concat(PREFIX, "server");
 }
 
-key_t get_client_key(){
-    key_t key;
-    if ((key = ftok(getenv("HOME"), getpid())) == -1){
-        perror("Couldn't generate client key\n");
+char* get_client_name(){
+    return concat(PREFIX, random_string(12));
+}
+
+char* concat(char* str1, char* str2){
+    char* result = (char*) calloc(strlen(str1)+strlen(str2)+1, sizeof(char));
+    strcat(result, str1);
+    strcat(result, str2);
+    return result;
+}
+
+char* random_string(int len){
+    int seed;
+    time_t tt;
+    seed = time(&tt);
+    srand(seed);
+    char* string = (char*) calloc(len+1, sizeof(char));
+    for (int i = 0; i < len; i++){
+        string[i] = 'a' + (rand() % 26);
     }
-    return key;
+    string[len] = '\0';
+    return string;
 }

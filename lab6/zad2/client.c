@@ -9,26 +9,28 @@
 #include <sys/select.h>
 #include <signal.h>
 
-int server_queue, private_queue, friend_queue;
+char private_name[20];
+mqd_t server_queue, private_queue, friend_queue;
 int private_id;
 
-void list(message* msg){
-    printf("%s", msg->text);
+void list(char* msg){
+    printf("%s", msg);
 }
 
-void set_id(message* msg){
-    private_id = msg->id;
+void set_id(char* msg){
+    private_id = atoi(msg);
     printf("Client received a respond message and has id = %d\n", private_id);
 }
 
-void connect(message* msg){
-    friend_queue = atoi(msg->text);
+void connect(char* msg){
+    friend_queue = get_queue(msg);
     printf("Client received a respond message and connects to %d\n", friend_queue);
 }
 
-void disconnect(message* msg){
+void disconnect(char* msg){
+    close_queue(friend_queue);
     friend_queue = -1;
-    printf("%s", msg->text);
+    printf("%s", msg);
 }
 
 int get_input(char* buf, int buf_len){
@@ -43,12 +45,13 @@ int get_input(char* buf, int buf_len){
 
 void stop(){
     if(server_queue >= 0){
-        message msg;
-        msg.type = STOP;
-        msg.id = private_id;
-        send_msg(server_queue, &msg);
+        char* msg = (char*) calloc(10, sizeof(char));
+        sprintf(msg, "%d", private_id);
+        send_msg(server_queue, msg, STOP);
     }
-    delete_queue(private_queue);
+    close_queue(server_queue);
+    close_queue(private_queue);
+    delete_queue(private_name);
     exit(1);
 }
 
@@ -57,33 +60,28 @@ void run_command(char* buf){
     char* end;
     pch = strtok_r(buf, " \n\0", &end);
     if (strcmp(pch, "LIST") == 0){
-        message msg;
-        msg.type = LIST;
-        msg.id = private_id;
-        send_msg(server_queue, &msg);
+        char* msg = (char*) calloc(10, sizeof(char));
+        sprintf(msg, "%d", private_id);
+        send_msg(server_queue, msg, LIST);
     }
     else if (strcmp(pch, "CONNECT") == 0){
         pch = strtok_r(NULL, " \n\0", &end);
-        message msg;
-        msg.type = CONNECT;
-        msg.id = private_id;
-        strcpy(msg.text, pch);
-        send_msg(server_queue, &msg);        
+        char* msg = (char*) calloc(20, sizeof(char));
+        sprintf(msg, "%d", private_id);
+        sprintf(msg, "%d %s", private_id, pch);
+        send_msg(server_queue, msg, CONNECT);        
     }
     else if (strcmp(pch, "SEND") == 0){
         pch = strtok_r(NULL, "\0", &end);
-        message msg;
-        msg.type = RECEIVE;
-        msg.id = private_id;
-        strcpy(msg.text, pch);
-        send_msg(friend_queue, &msg);
+        char* msg = (char*) calloc(MAX_MSG_LEN, sizeof(char));
+        sprintf(msg, "%d %s", private_id, pch);
+        send_msg(friend_queue, msg, RECEIVE);
         
     }
     else if (strcmp(pch, "DISCONNECT") == 0){
-        message msg;
-        msg.type = DISCONNECT;
-        msg.id = private_id;
-        send_msg(server_queue, &msg);
+        char* msg = (char*) calloc(10, sizeof(char));
+        sprintf(msg, "%d", private_id);
+        send_msg(server_queue, msg, DISCONNECT);
         
     }
     else if (strcmp(pch, "STOP") == 0){
@@ -92,12 +90,19 @@ void run_command(char* buf){
     }
 }
 
-void receive_friend(message* msg){
-    printf("From %d:\n%s", msg->id, msg->text);
+void receive_friend(char* msg){
+    char* pch;
+    char* end;
+    int friend_id;
+    pch = strtok_r(msg, " \n\0", &end);
+    friend_id = atoi(pch);
+    pch = strtok_r(NULL, "\0", &end);
+    printf("From %d:\n%s", friend_id, pch);
 }
 
 void receive(){
-    message msg;
+    char* msg = (char*) calloc(MAX_MSG_LEN, sizeof(char));
+    int type;
     fd_set readfds, savedfds;
     int sret;
     char buf[25];
@@ -113,26 +118,26 @@ void receive(){
             get_input(buf ,25);
             run_command(buf);
         }
-        else if (receive_msg(private_queue, &msg) > 0){
-            switch (msg.type)
+        else if (receive_msg(private_queue, msg, &type) > 0){
+            switch (type)
             {
             case INIT:
-                set_id(&msg);
+                set_id(msg);
                 break;
             case LIST:
-                list(&msg);
+                list(msg);
                 break;
             case CONNECT:
-                connect(&msg);
+                connect(msg);
                 break;
             case DISCONNECT:
-                disconnect(&msg);
+                disconnect(msg);
                 break;
             case RECEIVE:
-                receive_friend(&msg);
+                receive_friend(msg);
                 break;
             case STOP:
-                stop(&msg);
+                stop();
                 break;
             default:
                 break;
@@ -150,15 +155,11 @@ void end_handler(int signum){
 }
 
 void init(){
-    key_t client_key = get_client_key();
-    private_queue = create_queue(client_key);
-    server_queue = get_queue(get_server_key());
+    strcpy(private_name, get_client_name());
+    private_queue = create_queue(private_name);
+    server_queue = get_queue(get_server_name());
     printf("Server queue in client is %d\n", server_queue);
-    message msg;
-    msg.id = private_queue;
-    msg.type = INIT;
-    printf("msg id = %d\n", msg.id);
-    send_msg(server_queue, &msg);
+    send_msg(server_queue, private_name, INIT);
     
 }
 

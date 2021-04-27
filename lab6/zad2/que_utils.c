@@ -2,29 +2,35 @@
 #include <sys/msg.h>
 #include <stdio.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <string.h>
 
-int create_queue(key_t key){
-    return msgget(key, IPC_CREAT | 0666);
+mqd_t create_queue(char* queue_name){
+    struct mq_attr attr;
+    attr.mq_flags = O_NONBLOCK;
+    attr.mq_maxmsg = 10;
+    attr.mq_msgsize = MAX_MSG_LEN-1;
+    attr.mq_curmsgs = 0;
+
+    return mq_open(queue_name, O_RDONLY | O_CREAT | O_EXCL | O_NONBLOCK, 0666, &attr);
 }
 
-int get_queue(key_t key){
-    return msgget(key, 0);
+int get_queue(char* queue_name){
+    return mq_open(queue_name, O_WRONLY | O_NONBLOCK);
 }
 
-int delete_queue(int queue){
-    return msgctl(queue, IPC_RMID, NULL);
+int delete_queue(char* queue_name){
+    return mq_unlink(queue_name);
 }
 
-void send_msg(int queue, message* msg){
-    if ((msgsnd(queue, msg, MESSAGE_SIZE, 0)) == -1){
-        perror("Couldn't send message");
-    }
+int close_queue(mqd_t mqdes){
+    return mq_close(mqdes);
 }
 
-int receive_msg(int queue, message* msg){
-    int received = msgrcv(queue, msg, MESSAGE_SIZE, -100, IPC_NOWAIT);
-    if (received == -1){
-        // perror("Couldn't receive message");
-    }
-    return received;
+int send_msg(mqd_t mqdes, char* msg, int type){
+    return mq_send(mqdes, msg, strlen(msg), type);
+}
+
+int receive_msg(mqd_t mqdes, char* msg, int* type){
+    return mq_receive(mqdes, msg, MAX_MSG_LEN, type);
 }
