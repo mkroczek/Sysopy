@@ -1,16 +1,16 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-all: cook
+all: pizzeria
 
-cook: cook.c
+cook: cook.c config.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-deliverer: deliverer.c
+deliverer: deliverer.c config.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-zad1: zad1.c
+pizzeria: pizzeria.c config.c cook deliverer
 	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
-	rm zad1 cook deliverer
+	rm pizzeria cook deliverer
