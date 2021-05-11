@@ -1,13 +1,16 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <sys/sem.h>
-#include <sys/ipc.h>
+#include <semaphore.h>
+#include <fcntl.h>
 #include <sys/types.h>
+#include <sys/mman.h>
 #include <stdlib.h>
-#include <sys/shm.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <string.h>
+#include <stdio.h>
 #include <sys/time.h>
 
 #define BAKE_SIZE 2
@@ -15,20 +18,18 @@
 #define N_COOKS 4
 #define N_DELIVERERS 3
 
-#define BAKE_SHM_ID 1
-#define TABLE_SHM_ID 2
-#define BAKE_SEM_ID 3
-#define TABLE_SEM_ID 4
+#define BAKE_SHM "/bake_shm"
+#define TABLE_SHM "/table_shm"
+#define BAKE_SEM "/bake_sem"
+#define TABLE_SEM "/table_sem"
 
 int get_bake_shm();
 int get_table_shm();
-int get_bake_sem();
-int get_table_sem();
+sem_t* get_bake_sem();
+sem_t* get_table_sem();
 
-int create_bake_shm();
-int create_table_shm();
-int create_bake_sem();
-int create_table_sem();
+sem_t* create_bake_sem();
+sem_t* create_table_sem();
 
 void intialize_bake(int* bake);
 void initialize_table(int* table);
@@ -40,6 +41,12 @@ int n_pizzas_bake(int* bake);
 int n_pizzas_table(int* bake);
 
 int first_pizza_id(int* table);
+
+void* attach_bake();
+void* attach_table();
+
+void detach_bake(void* add);
+void detach_table(void* add);
 
 union semun{
     int val;

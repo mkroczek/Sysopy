@@ -4,27 +4,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int table_sem;
+sem_t* table_sem;
 
 int take(){
     int took = 0;
     int pizza = -1;
 
-    //reserve access to table
-    struct sembuf sops;
-    sops.sem_num = 0;
-    sops.sem_op = -1;
-    sops.sem_flg = 0;
-
-    struct sembuf ret_buf;
-    ret_buf.sem_num = 0;
-    ret_buf.sem_op = 1;
-    ret_buf.sem_flg = 0;
-
     while(took == 0){
         //get access to table
-        semop(table_sem, &sops, 1);
-        int* table = shmat(get_table_shm(), NULL, 0);
+        sem_wait(table_sem);
+        int table_fd = get_table_shm();
+        int* table = attach_table(table_fd);
         if (n_pizzas_table(table) > 0){
             int index = first_pizza_id(table);
             pizza = table[index];
@@ -33,9 +23,10 @@ int take(){
             printf("(%d %lld) Pobieram pizze: %d Liczba pizz na stole: %d\n", getpid(), current_timestamp(), pizza, n_pizzas);
             took = 1;
         }
-        shmdt(table);
+        detach_table(table);
+        close(table_fd);
         //return access to table
-        semop(table_sem, &ret_buf, 1);
+        sem_post(table_sem);
         if (took == 0){
             sleep(1);
         }

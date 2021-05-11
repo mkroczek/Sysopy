@@ -17,6 +17,8 @@ libtest
 !*/zad1/raport2.txt
 !*/zad3/resources/*.txt
 !*/zad3/wnioski.txt
+!*/zad1/wnioski.txt
+!*/zad2/wnioski.txt
 .vscode
 kolos
 kolos-prawdziwy

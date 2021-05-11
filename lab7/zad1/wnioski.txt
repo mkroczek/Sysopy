@@ -1,0 +1,54 @@
+Analiza dzialania programu pozwala stwierdzic, ze program dziala poprawnie, 
+liczba pizz w piecu oraz na stole nigdy nie przekracza ich rozmiaru.
+
+Przykladowy output dla 4 kucharzy i 3 dostawcow.
+(4120 1620744790436) Przygotowuje pizze: 8
+(4119 1620744790436) Przygotowuje pizze: 2
+(4122 1620744790437) Przygotowuje pizze: 2
+(4121 1620744790437) Przygotowuje pizze: 8
+(4119 1620744792441) Dodalem pizze: 2. Liczba pizz w piecu: 1
+(4120 1620744792441) Dodalem pizze: 8. Liczba pizz w piecu: 2
+(4119 1620744796447) Wyjmuje pizze: 2. Liczba pizz w piecu: 1. Liczba pizz na stole: 1
+(4119 1620744796447) Przygotowuje pizze: 1
+(4120 1620744796447) Wyjmuje pizze: 8. Liczba pizz w piecu: 0. Liczba pizz na stole: 2
+(4120 1620744796447) Przygotowuje pizze: 6
+(4121 1620744796459) Dodalem pizze: 8. Liczba pizz w piecu: 1
+(4122 1620744796460) Dodalem pizze: 2. Liczba pizz w piecu: 2
+(4123 1620744796460) Pobieram pizze: 2 Liczba pizz na stole: 1
+(4124 1620744796460) Pobieram pizze: 8 Liczba pizz na stole: 0
+(4123 1620744800486) Dostarczam pizze: 2
+(4124 1620744800486) Dostarczam pizze: 8
+(4121 1620744800486) Wyjmuje pizze: 8. Liczba pizz w piecu: 1. Liczba pizz na stole: 1
+(4121 1620744800486) Przygotowuje pizze: 1
+(4122 1620744800486) Wyjmuje pizze: 2. Liczba pizz w piecu: 0. Liczba pizz na stole: 2
+(4122 1620744800486) Przygotowuje pizze: 0
+(4119 1620744800521) Dodalem pizze: 1. Liczba pizz w piecu: 1
+(4120 1620744800526) Dodalem pizze: 6. Liczba pizz w piecu: 2
+(4125 1620744800526) Pobieram pizze: 8 Liczba pizz na stole: 1
+(4119 1620744804526) Wyjmuje pizze: 1. Liczba pizz w piecu: 1. Liczba pizz na stole: 2
+(4119 1620744804526) Przygotowuje pizze: 8
+(4125 1620744804527) Dostarczam pizze: 8
+(4120 1620744804527) Wyjmuje pizze: 6. Liczba pizz w piecu: 0. Liczba pizz na stole: 3
+(4120 1620744804527) Przygotowuje pizze: 6
+(4122 1620744804550) Dodalem pizze: 0. Liczba pizz w piecu: 1
+(4121 1620744804550) Dodalem pizze: 1. Liczba pizz w piecu: 2
+(4123 1620744805501) Pobieram pizze: 1 Liczba pizz na stole: 2
+(4124 1620744805501) Pobieram pizze: 2 Liczba pizz na stole: 1
+(4122 1620744808568) Wyjmuje pizze: 0. Liczba pizz w piecu: 1. Liczba pizz na stole: 2
+(4122 1620744808568) Przygotowuje pizze: 8
+(4121 1620744808568) Wyjmuje pizze: 1. Liczba pizz w piecu: 0. Liczba pizz na stole: 3
+(4121 1620744808568) Przygotowuje pizze: 4
+(4120 1620744808599) Dodalem pizze: 6. Liczba pizz w piecu: 1
+(4119 1620744808600) Dodalem pizze: 8. Liczba pizz w piecu: 2
+(4123 1620744809540) Dostarczam pizze: 1
+(4124 1620744809540) Dostarczam pizze: 2
+(4125 1620744809540) Pobieram pizze: 0 Liczba pizz na stole: 2
+(4125 1620744813606) Dostarczam pizze: 0
+(4119 1620744813606) Wyjmuje pizze: 8. Liczba pizz w piecu: 1. Liczba pizz na stole: 3
+(4119 1620744813606) Przygotowuje pizze: 0
+(4121 1620744813647) Dodalem pizze: 4. Liczba pizz w piecu: 1
+(4122 1620744813647) Dodalem pizze: 8. Liczba pizz w piecu: 2
+(4123 1620744814589) Pobieram pizze: 8 Liczba pizz na stole: 2
+(4124 1620744814589) Pobieram pizze: 1 Liczba pizz na stole: 1
+(4120 1620744814606) Wyjmuje pizze: 6. Liczba pizz w piecu: 0. Liczba pizz na stole: 2
+(4120 1620744814606) Przygotowuje pizze: 0

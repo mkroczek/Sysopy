@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int bake_sem;
-int table_sem;
+sem_t* bake_sem;
+sem_t* table_sem;
 
 int prepare_pizza(){
     int pizza_type = abs(rand()*getpid()%10);
@@ -19,20 +19,11 @@ int place(int pizza){
     int placed = 0;
     int index = -1;
 
-    struct sembuf sops;
-    sops.sem_num = 0;
-    sops.sem_op = -1;
-    sops.sem_flg = 0;
-
-    struct sembuf ret_buf;
-    ret_buf.sem_num = 0;
-    ret_buf.sem_op = 1;
-    ret_buf.sem_flg = 0;
-
     while(placed == 0){
         //reserve access to bake
-        semop(bake_sem, &sops, 1);
-        int* bake = shmat(get_bake_shm(), NULL, 0);
+        sem_wait(bake_sem);
+        int bake_fd = get_bake_shm();
+        int* bake = (int*) attach_bake(bake_fd);
         if (n_pizzas_bake(bake) < BAKE_SIZE){
             index = free_index_bake(bake);
             bake[index] = pizza;
@@ -40,9 +31,10 @@ int place(int pizza){
             printf("(%d %lld) Dodalem pizze: %d. Liczba pizz w piecu: %d\n", getpid(), current_timestamp(), pizza, n_pizzas);
             placed = 1;
         }
-        shmdt(bake);
+        detach_bake(bake);
+        close(bake_fd);
         //return access to bake
-        semop(bake_sem, &ret_buf, 1);
+        sem_post(bake_sem);
         if (placed == 0){
             sleep(1);
         }
@@ -59,31 +51,24 @@ void bake_pizza(){
 void issue(int index){
     int placed = 0;
 
-    struct sembuf sops;
-    sops.sem_num = 0;
-    sops.sem_op = -1;
-    sops.sem_flg = 0;
-
-    struct sembuf ret_buf;
-    ret_buf.sem_num = 0;
-    ret_buf.sem_op = 1;
-    ret_buf.sem_flg = 0;
-
     //get access to bake
-    semop(bake_sem, &sops, 1);
-    int* bake = shmat(get_bake_shm(), NULL, 0);
+    sem_wait(bake_sem);
+    int bake_fd = get_bake_shm();
+    int* bake = (int* )attach_bake(bake_fd);
     int pizza = bake[index];
     bake[index] = -1;
     int n_pizzas = n_pizzas_bake(bake);
-    shmdt(bake);
+    detach_bake(bake);
+    close(bake_fd);
     
     //return access to bake
-    semop(bake_sem, &ret_buf, 1);
+    sem_post(bake_sem);
 
     while(placed == 0){
         //loop until you place pizza on table
-        semop(table_sem, &sops, 1);
-        int* table = shmat(get_table_shm(), NULL, 0);
+        sem_wait(table_sem);
+        int table_fd = get_table_shm();
+        int* table = attach_table(table_fd);
         if (n_pizzas_table(table) < TABLE_SIZE){
             index = free_index_table(table);
             table[index] = pizza;
@@ -91,9 +76,10 @@ void issue(int index){
             printf("(%d %lld) Wyjmuje pizze: %d. Liczba pizz w piecu: %d. Liczba pizz na stole: %d\n", getpid(), current_timestamp(), pizza, n_pizzas, n_pizzas_tab);
             placed = 1;
         }
-        shmdt(table);
+        detach_table(table);
+        close(table_fd);
         //return access to table
-        semop(table_sem, &ret_buf, 1);
+        sem_post(table_sem);
         if (placed == 0){
             sleep(1);
         }
