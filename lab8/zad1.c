@@ -4,13 +4,23 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <math.h>
+#include <time.h>
 
 int** input_image;
 int** output_image;
 int W,H,M;
 pthread_t* threads; 
 
+int min(int a, int b){
+    if (a<b)
+        return a;
+    else
+        return b;
+}
+
 void* negative_numbers(void* arg){
+    clock_t real_time[2];
+    real_time[0] = clock();
     range* scale_range = (range*) arg;
     for (int i = 0; i < H; i++){
         for (int j = 0; j < W; j++){
@@ -19,18 +29,26 @@ void* negative_numbers(void* arg){
             }
         }
     }
-    return NULL;
+    real_time[1] = clock();
+    double* execute_time = (double*) calloc(1, sizeof(double));
+    *execute_time = (double)(real_time[1]-real_time[0])/CLOCKS_PER_SEC;
+    pthread_exit(execute_time);
 
 }
 
 void* negative_block(void* arg){
+    clock_t real_time[2];
+    real_time[0] = clock();
     range* scale_range = (range*) arg;
     for (int i = 0; i < H; i++){
         for (int j = scale_range->from; j <= scale_range->to; j++){
             output_image[i][j] = 255-input_image[i][j];
         }
     }
-    return NULL;
+    real_time[1] = clock();
+    double* execute_time = (double*) calloc(1, sizeof(double));
+    *execute_time = (double)(real_time[1]-real_time[0])/CLOCKS_PER_SEC;
+    pthread_exit(execute_time);
 
 }
 
@@ -94,6 +112,12 @@ int main(int argc, char** argv){
 
     fclose(input_file);
 
+    printf("Test for %d threads, %s method and %s input file\n", nThreads, argv[2], input_filename);
+
+    //initialize measure time
+    clock_t real_times[2];
+    real_times[0] = clock();
+
     if (type == NUMBERS){
         //split interval into threads
         int range_size = (M+1)/nThreads;
@@ -106,14 +130,12 @@ int main(int argc, char** argv){
             range* rng = (range*) calloc(1, sizeof(range));
             rng->from = range_size*n_full;
             rng->to = rng->from+last_size-1;
-            // printf("Tutaj wywolam watek z przedzialem %d -> %d\n", rng->from, rng->to);
             pthread_create(&threads[nThreads-1], NULL, negative_numbers, rng);
         }
         for (int i = 0; i < n_full; i++){
             range* rng = (range*) calloc(1, sizeof(range));
             rng->from = i*range_size;
             rng->to = (i+1)*range_size-1;
-            // printf("Tutaj wywolam watek z przedzialem %d -> %d\n", rng->from, rng->to);
             pthread_create(&threads[i], NULL, negative_numbers, rng);
         }
     }
@@ -124,16 +146,22 @@ int main(int argc, char** argv){
             int res = W/nThreads;
             if (res*nThreads < W) ++res;
             rng->from = (k-1)*res;
-            rng->to = k*res-1;
-            // printf("Tutaj wywolam watek z przedzialem %d -> %d\n", rng->from, rng->to);
+            rng->to = min(k*res-1, W-1);
             pthread_create(&threads[k-1], NULL, negative_block, rng);
         }
     }
 
+    double* thread_execute_time;
     //wait for threads to finish
     for (int i = 0; i < nThreads; i++){
-        pthread_join(threads[i], NULL);
+        pthread_join(threads[i], (void*)&thread_execute_time);
+        printf("Thread %d finished his operations in time %f\n", i, *thread_execute_time);
     }
+    free(thread_execute_time);
+
+    real_times[1] = clock();
+    double execute_time = (double)(real_times[1]-real_times[0])/CLOCKS_PER_SEC;
+    printf("Program executed all of its operations in time %f\n\n", execute_time);
 
     //save result in output file
     FILE* output_file = fopen(output_filename, "w");
