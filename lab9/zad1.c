@@ -8,6 +8,7 @@
 
 int n_trips = 0;
 int n_waiting_elves = 0;
+int n_returning_elves = 0;
 int n_back_reindeers = 0;
 
 pthread_mutex_t variables_mutex;
@@ -24,10 +25,10 @@ void* work_elve(void* arg){
     while(1){
         sleep(rand_time(2, 5));
         pthread_mutex_lock(&variables_mutex);
-        if (n_waiting_elves >= 3){
-            while (n_waiting_elves > 0){
+        if (n_waiting_elves >= 3 || n_returning_elves > 0){
+            printf("Elf: czeka na powrot elfow, %ld\n", pthread_self());
+            while (n_waiting_elves >= 3 || n_returning_elves > 0){
                 // wait until all waiting elves will come back
-                printf("Elf: czeka na powrot elfow, %ld\n", pthread_self());
                 pthread_cond_wait(&elves_cond, &variables_mutex);
             }
         }
@@ -38,10 +39,11 @@ void* work_elve(void* arg){
             printf("Elf: wybudzam Mikolaja, %ld\n", pthread_self());
             pthread_cond_signal(&santa_cond);
         }
-        while (n_waiting_elves > 0){
+        while (n_returning_elves == 0){
             pthread_cond_wait(&elves_cond, &variables_mutex);
         }
-        printf("Elf: MIkolaj rozwiazal moj problem, %ld\n", pthread_self());
+        n_returning_elves -= 1;
+        printf("Elf: Mikolaj rozwiazal moj problem, %ld\n", pthread_self());
         printf("Elf: Wracam do pracy, %ld\n", pthread_self());
         pthread_mutex_unlock(&variables_mutex);
     }
@@ -86,6 +88,7 @@ void* work_santa(void* arg){
             printf("Mikolaj: rozwiazuje problemy elfow %ld\n", pthread_self());
             sleep(2);
             n_waiting_elves = 0;
+            n_returning_elves += 3;
             pthread_cond_broadcast(&elves_cond);
         }
         printf("Mikolaj: zasypiam, %ld\n", pthread_self());
